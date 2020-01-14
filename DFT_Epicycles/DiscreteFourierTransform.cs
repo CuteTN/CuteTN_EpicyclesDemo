@@ -12,7 +12,7 @@ namespace DFT_Epicycles
     static class DiscreteFourierTransform
     {
         static public bool UsesFFT = false;
-        static public int NumberOfCoefsLimit = 1000;
+        static public int NumberOfCoefsLimit = 1000000;
 
 
         /// transform discrete points into Fourier coefficients

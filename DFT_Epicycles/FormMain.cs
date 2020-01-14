@@ -50,6 +50,8 @@ namespace DFT_Epicycles
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.FormMain_MouseDown_CoefLimitSetting);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.FormMain_Paint_CoefLimitSetting);
 
+            this.Paint += new System.Windows.Forms.PaintEventHandler(this.FormMain_Paint_UserLog);
+
             this.SimulationTimer.Tick += SimulationTimer_Tick_UpdateFrame;
             this.mspf = 10;
 
@@ -94,6 +96,34 @@ namespace DFT_Epicycles
             PaintCanvas(e.Graphics);
         }
 
+        // USER LOG ////////////////////////////////////////////////////////////////////////////////////////////////// 
+        string LogMsg = "";
+        int LogFrameLeft = 0;
+
+        private void UserLog(string msg)
+        {
+            LogMsg = msg;
+            LogFrameLeft = 100;
+        }
+
+        private void FormMain_Paint_UserLog(object sender, PaintEventArgs e)
+        {
+            if( LogFrameLeft == 0 )
+                return;
+
+            Graphics g = e.Graphics;
+            Pen p = new Pen( Color.FromArgb(200, Color.White), 3);
+            Brush b = new SolidBrush( Color.FromArgb(100, Color.White ) );
+            Rectangle rect = new Rectangle(0, 0, this.Width, 30);
+
+            g.DrawRectangle(p, rect);
+            g.FillRectangle(b, rect);
+
+            Font font = new Font("Arial", 15);
+            b = new SolidBrush( Color.Black );
+            g.DrawString(LogMsg, font, b, new PointF(0, 5) );
+            LogFrameLeft--;
+        }
         // HOTKEY HANDLING ////////////////////////////////////////////////////////////////////////////////////////////////// 
         private void HandleHotKey(KeyEventArgs e)
         {
@@ -112,11 +142,13 @@ namespace DFT_Epicycles
                 case Keys.Left:
                 {
                     AdjustCirclesLimit(-1);
+                    UserLog("Circle Limit is set to: " + (CalculateCircleLimit()-1) );
                     break;
                 }
                 case Keys.Right:
                 {
                     AdjustCirclesLimit(1);
+                    UserLog("Circle Limit is set to: " + (CalculateCircleLimit()-1) );
                     break;
                 }
                 case Keys.Add:
@@ -129,6 +161,41 @@ namespace DFT_Epicycles
                 {
                     if(EraserRadius > 0)
                         EraserRadius -= 5;
+                    break;
+                }
+                case Keys.Down:
+                {
+                    if( e.Shift )
+                        mspf += 5;
+                    else
+                        mspf += 1;
+                    UserLog("Time per frame: " + mspf + "ms");
+                    break;
+                }
+                case Keys.Up:
+                {
+                    if( e.Shift )
+                        mspf -= 5;
+                    else
+                        mspf -= 1;
+                    UserLog("Time per frame: " + mspf + "ms");
+                    break;
+                }
+                case Keys.R:
+                {
+                    EnableDrawingRadius = ! EnableDrawingRadius;
+                    UserLog("Draw radius: turned " + (EnableDrawingRadius? "ON":"OFF") );
+                    break;
+                }
+                case Keys.C:
+                {
+                    EnableDrawingCircles = ! EnableDrawingCircles;
+                    UserLog("Draw circles: turned " + (EnableDrawingCircles? "ON":"OFF") );
+                    break;
+                }
+                case Keys.P:
+                {
+                    SimulationIsPlaying = ! SimulationIsPlaying;
                     break;
                 }
             }
@@ -159,6 +226,12 @@ namespace DFT_Epicycles
                     return false;
             }
 
+            if( Stroke.Count >= 300000 )
+            {
+                // if the stroke is too loooong, do not add
+                return false;
+            }
+
             Stroke.Add(point);
             return true;
         }
@@ -172,7 +245,6 @@ namespace DFT_Epicycles
             {
                 UserIsDrawing = true;
                 AddPoint(Cursor.Position);
-                // StrokeArray = Stroke.ToArray();
                 this.Refresh();
             }
         }
@@ -315,7 +387,10 @@ namespace DFT_Epicycles
             }
             set
             {
-                this.SimulationTimer.Interval = value;
+                if(value > 0)
+                    this.SimulationTimer.Interval = value;
+                else
+                    this.SimulationTimer.Interval = 1;
             }
         }
         private int Frame = 0;
@@ -329,6 +404,8 @@ namespace DFT_Epicycles
                 simulationIsPlaying = value;
                 if(value)
                     SimulationTimer.Start();
+                else
+                    SimulationTimer.Stop();
             }
         }
 
@@ -349,8 +426,8 @@ namespace DFT_Epicycles
                 return;
 
             Graphics g = e.Graphics;
-            float Time = (float)(2*Frame*Math.PI/FourierCoefs.Count);
-            int CircleLimit = (int)Math.Ceiling( (double)SettingButtonPos*( FourierCoefs.Count - 2 )/SettingCanvas.Width ) + 2;
+            float Time = CalculateTime();
+            int CircleLimit = CalculateCircleLimit();
             EpicycleRenderer.Render(g, Time, CircleLimit );
         }
 
@@ -370,6 +447,43 @@ namespace DFT_Epicycles
             if( SettingButtonPos < 0 )
                 SettingButtonPos = 0;
         }
+
+        private int CalculateCircleLimit()
+        {
+            return (int)Math.Ceiling( (double)SettingButtonPos*( FourierCoefs.Count - 2 )/SettingCanvas.Width ) + 2;
+        }
+
+        private float CalculateTime()
+        {
+            return (float)(2*Frame*Math.PI/FourierCoefs.Count);
+        }
+
+        bool EnableDrawingCircles
+        {
+            get
+            {
+                return EpicycleRenderer.EnableDrawingCircles;
+            }
+            set
+            {
+                EpicycleRenderer.EnableDrawingCircles = value;
+            }
+        }
+
+        bool EnableDrawingRadius
+        {
+            get
+            {
+                return EpicycleRenderer.EnableDrawingRadius;
+            }
+            set
+            {
+                EpicycleRenderer.EnableDrawingRadius = value;
+            }
+        }
+
+
+    
 
     }
 }

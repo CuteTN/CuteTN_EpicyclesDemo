@@ -17,9 +17,9 @@ namespace DFT_Epicycles
         List<int> Frequency = new List<int>();
         List<PointF> Stroke = new List<PointF>();
 
-        public Pen PenRadius = new Pen(Color.AliceBlue, 1);
-        public Pen PenCircles = new Pen(Color.AliceBlue, 2);
-        public Pen PenStroke = new Pen(Color.Purple, 5);
+        public Pen PenRadius = new Pen( Color.FromArgb(200, Color.AliceBlue), 1);
+        public Pen PenCircles = new Pen( Color.FromArgb(100, Color.AliceBlue), 2);
+        public Pen PenStroke = new Pen(Color.DodgerBlue, 5);
 
         public bool EnableDrawingCircles = true;
         public bool EnableDrawingRadius = true;
