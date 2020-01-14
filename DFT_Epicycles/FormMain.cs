@@ -18,7 +18,7 @@ namespace DFT_Epicycles
         Rectangle SimulationCanvas;
         Rectangle SettingCanvas;
 
-        Pen PenUserDrawing = new Pen(Color.LightPink, 5);
+        Pen PenUserDrawing = new Pen(Color.PapayaWhip, 5);
 
 
         public FormMain()
@@ -212,7 +212,7 @@ namespace DFT_Epicycles
         bool UserIsDeleting = false;
 
         List<PointF> Stroke = new List<PointF>();
-        public float MinPointsDistance = 10;
+        public float MinPointsDistance = 5;
 
         double EraserRadius = 20;
 

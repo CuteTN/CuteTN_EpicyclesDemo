@@ -17,9 +17,9 @@ namespace DFT_Epicycles
         List<int> Frequency = new List<int>();
         List<PointF> Stroke = new List<PointF>();
 
-        public Pen PenRadius = new Pen( Color.FromArgb(200, Color.AliceBlue), 1);
-        public Pen PenCircles = new Pen( Color.FromArgb(100, Color.AliceBlue), 2);
-        public Pen PenStroke = new Pen(Color.DodgerBlue, 5);
+        public Pen PenRadius = new Pen( Color.FromArgb(200, Color.MistyRose), 1);
+        public Pen PenCircles = new Pen( Color.FromArgb(100, Color.MistyRose), 2);
+        public Pen PenStroke = new Pen(Color.HotPink, 5);
 
         public bool EnableDrawingCircles = true;
         public bool EnableDrawingRadius = true;
@@ -119,8 +119,10 @@ namespace DFT_Epicycles
             if(EnableSmoothStroke && Stroke.Count >= 2)
                 for(int i = 1; i<Stroke.Count; i++)
                 {
-                    g.DrawLine(PenStroke, Utility.Plus(Stroke[i], Canvas.Location), Utility.Plus(Stroke[i-1], Canvas.Location));
-                    g.DrawLine(PenStroke, Stroke[i], Stroke[i-1] );
+                    Pen p = PenStroke.Clone() as Pen;
+                    p.Color = Color.FromArgb( (int)(i*200f/Stroke.Count) + 50, p.Color);
+                    g.DrawLine(p, Utility.Plus(Stroke[i], Canvas.Location), Utility.Plus(Stroke[i-1], Canvas.Location));
+                    g.DrawLine(p, Stroke[i], Stroke[i-1] );
                 }        
 
             if(Stroke.Count >= Coefficients.Count)
